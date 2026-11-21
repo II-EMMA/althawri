@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+:root {
+}
+
+@theme inline {
+  --font-tajawal: var(--font-tajawal), system-ui, sans-serif;
+  --color-brand-green: #00a550;
+  --color-brand-white: #f6f6f6;
+  --color-brand-purple: #6f42c1;
+  --color-brand-red: #ff0029;
+  --color-brand-medium-red: #f66969;
+  --color-brand-light-red: #ffe9e9;
+  --color-brand-secondary-purple: #625caf;
+  --color-gray-1: #2c2c2c;
+  --color-gray-2: #495057;
+}
+
+@utility font-gray-1 {
+  color: var(--color-gray-1);
+}
+@utility font-gray-2 {
+  color: var(--color-gray-2);
+}
+
+@utility bg-brand-green {
+  background-color: var(--color-brand-green);
+}
+@utility bg-brand-white {
+  background-color: var(--color-brand-white);
+}
+@utility bg-brand-purple {
+  background-color: var(--color-brand-purple);
+}
+@utility font-brand-purple {
+  color: var(--color-brand-purple);
+}
+@utility font-brand-red {
+  color: var(--color-brand-red);
+}
+@utility bg-brand-light-red {
+  background-color: var(--color-brand-light-red);
+}
+@utility bg-brand-medium-red {
+  background-color: var(--color-brand-medium-red);
+}
+@utility font-brand-medium-red {
+  color: var(--color-brand-medium-red);
+}
+@utility border-brand-medium-red {
+  border-color: var(--color-brand-medium-red);
+}
+@utility bg-brand-secondary-purple {
+  background-color: var(--color-brand-secondary-purple);
+}
+@utility font-brand-green {
+  color: var(--color-brand-green);
+}
+@utility border-brand-green {
+  border-color: var(--color-brand-green);
+}
+
+body {
+  background-color: var(--color-brand-white);
+}
+
+/* The animation red for the card ==> */
+
+@keyframes urgentBorderPulse {
+  0%,
+  100% {
+    border-color: rgba(239, 68, 68, 0.35);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.25);
+  }
+  50% {
+    border-color: rgba(239, 68, 68, 0.95);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18);
+  }
+}
+
+.animate-urgent-border {
+  animation: urgentBorderPulse 1.6s ease-in-out infinite;
+}
+
+/* ==> Styling the toggle menu button */
+
+.menu {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+}
+.line {
+  fill: black;
+  stroke: black;
+  stroke-width: 6;
+  transition:
+    stroke-dasharray 600ms cubic-bezier(0.4, 0, 0.2, 1),
+    stroke-dashoffset 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.line1 {
+  stroke-dasharray: 60 207;
+  stroke-width: 6;
+}
+.line2 {
+  stroke-dasharray: 60 60;
+  stroke-width: 6;
+}
+.line3 {
+  stroke-dasharray: 60 207;
+  stroke-width: 6;
+}
+.opened .line1 {
+  stroke-dasharray: 90 207;
+  stroke-dashoffset: -134;
+  stroke-width: 6;
+}
+.opened .line2 {
+  stroke-dasharray: 1 60;
+  stroke-dashoffset: -30;
+  stroke-width: 6;
+}
+.opened .line3 {
+  stroke-dasharray: 90 207;
+  stroke-dashoffset: -134;
+  stroke-width: 6;
+}
+
+/* ==> Styling the scrollbar */
+
+/* SCROLLBAR STYLING */
+/* Chrome, Edge, and Safari */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
