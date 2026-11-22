@@ -23,6 +23,27 @@ export default function CarCard({ car, variant = "default" }) {
   const isList = variant !== "sidebar" && viewMode === "list";
   const isUrgent = Boolean(car?.isEndingSoon || car?.urgent);
 
+  // Dynamic time formatter for localization (English: Day/Days, Arabic: يوم/أيام)
+  const formatTimeLeft = (timeLeft) => {
+    if (!timeLeft) return "";
+
+    if (typeof timeLeft === "object" && timeLeft !== null) {
+      const days = Number(timeLeft.days ?? 0);
+      const dayLabel = days === 1 ? t("day") : t("days");
+      return `${days} ${dayLabel} ${timeLeft.clock ?? ""}`.trim();
+    }
+
+    if (typeof timeLeft === "string") {
+      return timeLeft.replace(/(\d+)\s*D\b/i, (_, count) => {
+        const num = Number(count);
+        const dayLabel = num === 1 ? t("day") : t("days");
+        return `${num} ${dayLabel}`;
+      });
+    }
+
+    return String(timeLeft);
+  };
+
   return (
     <div
       dir={isList && isRtl ? "ltr" : "rtl"}
@@ -133,7 +154,9 @@ export default function CarCard({ car, variant = "default" }) {
                       isUrgent ? "font-brand-red" : "font-brand-purple"
                     }`}
                   />
-                  <span className="truncate">{car.timeLeft}</span>
+                  <span className="truncate">
+                    {formatTimeLeft(car.timeLeft)}
+                  </span>
                 </div>
               </div>
 
@@ -328,7 +351,9 @@ export default function CarCard({ car, variant = "default" }) {
                       isUrgent ? "font-brand-red" : "font-brand-purple"
                     }`}
                   />
-                  <span className="truncate">{car.timeLeft}</span>
+                  <span className="truncate">
+                    {formatTimeLeft(car.timeLeft)}
+                  </span>
                 </div>
               </div>
 

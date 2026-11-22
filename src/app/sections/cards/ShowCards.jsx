@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { IoIosArrowDown } from "react-icons/io";
 import CarCard from "@/app/components/CarCard";
@@ -11,13 +17,23 @@ export default function ShowCards() {
   const locale = useLocale();
   const t = useTranslations("Cards");
   const isRtl = locale === "ar";
-  const { viewMode } = useFilter(); // Consumes viewMode ('grid' | 'list') from context
+  const { viewMode } = useFilter();
 
   const [perPage, setPerPage] = useState("15");
+  const [currentPage, setCurrentPage] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
+  const [isFading, setIsFading] = useState(false);
+  const [cardsVisible, setCardsVisible] = useState(true);
+
+  const sectionRef = useRef(null);
   const dropdownRef = useRef(null);
+  const transitionTimerRef = useRef(null);
 
   const options = ["15", "25", "35", "45"];
+  const pageSize = Number(perPage) || 15;
+  const totalItems = CARDS_DATA.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const shownUpToCurrentPage = Math.min(currentPage * pageSize, totalItems);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -29,13 +45,122 @@ export default function ShowCards() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  useEffect(() => {
+    return () => {
+      if (transitionTimerRef.current) {
+        clearTimeout(transitionTimerRef.current);
+      }
+    };
+  }, []);
+
+  const paginatedCards = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return CARDS_DATA.slice(startIndex, startIndex + pageSize);
+  }, [currentPage, pageSize]);
+
+  const scrollToSectionStart = useCallback(() => {
+    const sectionEl = sectionRef.current;
+    if (!sectionEl) return;
+
+    const headerEl = document.querySelector("header");
+    const headerHeight = headerEl
+      ? headerEl.getBoundingClientRect().height
+      : 72;
+    const offset = headerHeight + 16;
+
+    const targetTop =
+      sectionEl.getBoundingClientRect().top + window.scrollY - offset;
+
+    window.scrollTo({
+      top: Math.max(0, targetTop),
+      behavior: "smooth",
+    });
+  }, []);
+
+  const triggerSmoothSlice = (updateFn, shouldScroll = false) => {
+    if (transitionTimerRef.current) {
+      clearTimeout(transitionTimerRef.current);
+    }
+
+    setIsFading(true);
+    setCardsVisible(false);
+
+    transitionTimerRef.current = setTimeout(() => {
+      updateFn();
+
+      requestAnimationFrame(() => {
+        if (shouldScroll) {
+          scrollToSectionStart();
+        }
+        requestAnimationFrame(() => {
+          setIsFading(false);
+          setCardsVisible(true);
+        });
+      });
+    }, 180);
+  };
+
+  const handlePageChange = (page) => {
+    if (page === currentPage) return;
+    triggerSmoothSlice(() => setCurrentPage(page), true);
+  };
+
+  const handlePerPageChange = (opt) => {
+    setIsOpen(false);
+    if (opt === perPage) return;
+    triggerSmoothSlice(() => {
+      setPerPage(opt);
+      setCurrentPage(1);
+    }, false);
+  };
+
+  const renderCounterAndPages = () => (
+    <div className="flex items-center gap-3">
+      <p className="text-gray-700 text-sm font-bold">
+        {t("showingCount", {
+          current: String(shownUpToCurrentPage),
+          total: String(totalItems),
+        })}
+      </p>
+
+      <div className="flex items-center gap-1.5">
+        {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+          (page) => {
+            const isActive = currentPage === page;
+            return (
+              <button
+                key={page}
+                type="button"
+                onClick={() => handlePageChange(page)}
+                className={`w-7 h-6 rounded text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
+                  isActive
+                    ? "bg-brand-green text-white shadow-xs"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {page}
+              </button>
+            );
+          },
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <section
+      ref={sectionRef}
       dir={isRtl ? "rtl" : "ltr"}
       className="bg-white rounded-md shadow-sm border border-gray-100 px-6 py-3 flex flex-col mt-5 w-full"
     >
-      {/* Top Bar with Dropdown & Item Counter */}
-      <div className="flex justify-between items-center relative">
+      {/* Top Bar with Dropdown, Counter & Page Boxes */}
+      <div className="flex flex-wrap justify-between items-center gap-3 relative">
         {/* Dropdown Toggle */}
         <div className="relative" ref={dropdownRef}>
           <button
@@ -61,11 +186,8 @@ export default function ShowCards() {
                 <button
                   key={opt}
                   type="button"
-                  onClick={() => {
-                    setPerPage(opt);
-                    setIsOpen(false);
-                  }}
-                  className={`w-full py-1.5 text-center text-xs transition-colors ${
+                  onClick={() => handlePerPageChange(opt)}
+                  className={`w-full py-1.5 text-center text-xs transition-colors cursor-pointer ${
                     perPage === opt
                       ? "bg-brand-green/10 text-brand-green font-bold"
                       : "text-gray-700 hover:bg-gray-50"
@@ -78,29 +200,58 @@ export default function ShowCards() {
           )}
         </div>
 
-        {/* Item Counter Text */}
-        <p className="text-gray-700 text-sm font-bold">
-          {t("showingCount", { current: "155", total: "155" })}
-        </p>
+        {/* Top Counter + Page Boxes */}
+        {renderCounterAndPages()}
       </div>
 
       {/* Forced Grid Under md (< 768px), Dynamic viewMode From md (>= 768px) */}
-      <div className="grid grid-cols-1 gap-4 mt-6 md:hidden">
-        {CARDS_DATA.map((car) => (
-          <CarCard key={car.id} car={car} variant="sidebar" />
+      <div
+        className={`grid grid-cols-1 gap-4 mt-6 md:hidden transition-opacity duration-300 ${
+          isFading ? "opacity-40" : "opacity-100"
+        }`}
+      >
+        {paginatedCards.map((car, idx) => (
+          <div
+            key={`${currentPage}-${pageSize}-${car.id}`}
+            style={{ transitionDelay: `${Math.min(idx * 35, 280)}ms` }}
+            className={`transition-all duration-300 ease-out ${
+              cardsVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-2"
+            }`}
+          >
+            <CarCard car={car} variant="sidebar" />
+          </div>
         ))}
       </div>
 
       <div
-        className={`hidden mt-6 ${
+        className={`hidden mt-6 transition-opacity duration-300 ${
+          isFading ? "opacity-40" : "opacity-100"
+        } ${
           viewMode === "list"
             ? "md:flex md:flex-col md:gap-3"
             : "md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4"
         }`}
       >
-        {CARDS_DATA.map((car) => (
-          <CarCard key={car.id} car={car} />
+        {paginatedCards.map((car, idx) => (
+          <div
+            key={`${currentPage}-${pageSize}-${car.id}`}
+            style={{ transitionDelay: `${Math.min(idx * 35, 280)}ms` }}
+            className={`transition-all duration-300 ease-out ${
+              cardsVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-2"
+            }`}
+          >
+            <CarCard car={car} />
+          </div>
         ))}
+      </div>
+
+      {/* Bottom Bar at the End of the Section */}
+      <div className="my-6 pt-3 border-t border-gray-100 flex justify-start self-center">
+        {renderCounterAndPages()}
       </div>
     </section>
   );

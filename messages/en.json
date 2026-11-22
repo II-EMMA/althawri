@@ -114,7 +114,9 @@
       "used": "Used",
       "damaged": "Damaged",
       "confiscated": "Confiscated"
-    }
+    },
+    "day": "Day",
+    "days": "Days"
   },
   "Brands": {
     "title": "Browse by Brand"

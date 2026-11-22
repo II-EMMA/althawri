@@ -524,12 +524,12 @@ function FilterSection({
         >
           <div className="flex items-center gap-2">
             {isOpen ? (
-              <div className="w-5 h-5 rounded-full bg-brand-green/10 flex items-center justify-center text-brand-green">
-                <FiMinus className="text-xs" />
+              <div className="w-5 h-5 rounded-full border cursor-pointer border-brand-green bg-brand-green/10 flex items-center justify-center text-brand-green">
+                <FiMinus className="text-[11px]" />
               </div>
             ) : (
-              <div className="w-5 h-5 rounded-full bg-brand-green/10 flex items-center justify-center text-brand-green">
-                <FiPlus className="text-xs" />
+              <div className="w-5 h-5 rounded-full border cursor-pointer  border-brand-green bg-brand-green/10 flex items-center justify-center text-brand-green">
+                <FiPlus className="text-[11px]" />
               </div>
             )}
           </div>

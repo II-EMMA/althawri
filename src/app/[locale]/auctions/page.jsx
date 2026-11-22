@@ -16,7 +16,7 @@ export default async function AuctionPage({ params }) {
       <Hero />
 
       <FilterProvider>
-        <div className="flex mt-6 flex-row-reverse">
+        <div className="flex my-6 flex-row-reverse">
           <FilterSidebar />
           <div className="flex-1 flex flex-col">
             <div className="w-full flex flex-col space-y-4">

@@ -6,6 +6,7 @@ import "./globals.css";
 import { Tajawal } from "next/font/google";
 import Header from "../sections/header/Header";
 import Footer from "../sections/footer/Footer";
+import FloatingActionButtons from "../components/FloatingActionButtons";
 
 const tajawal = Tajawal({
   subsets: ["arabic", "latin"],
@@ -36,6 +37,7 @@ export default async function LocaleLayout({ children, params }) {
           <Header />
           {children}
           <Footer />
+          <FloatingActionButtons />
         </NextIntlClientProvider>
       </body>
     </html>

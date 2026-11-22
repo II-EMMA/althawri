@@ -10,7 +10,6 @@ import AuctionCard from "../sections/cards/AuctionCard";
 import BrowseBrands from "../sections/brands/BrowseBrands";
 import BrandsSlider from "../sections/brands/BrandsSlider";
 import PurchaseCycle from "../sections/brands/PurchaseCycle";
-import FilterSidebar from "../sections/filtering/FilterSidebar";
 
 export default async function HomePage({ params }) {
   const { locale } = await params;

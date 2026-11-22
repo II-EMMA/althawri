@@ -3,10 +3,10 @@
 import React, { useState, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { FiPlus, FiMinus } from "react-icons/fi";
-import { AiOutlineHome } from "react-icons/ai";
 import { Link } from "@/i18n/navigation";
 import gsap from "gsap";
 import { IoChevronBack } from "react-icons/io5";
+import { AiOutlineHome } from "react-icons/ai";
 
 export default function FAQPage() {
   const locale = useLocale();

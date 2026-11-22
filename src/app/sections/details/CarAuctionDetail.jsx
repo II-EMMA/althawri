@@ -7,21 +7,12 @@ import { Link } from "@/i18n/navigation";
 import {
   FiChevronRight,
   FiChevronLeft,
-  FiShare2,
-  FiFileText,
   FiStar,
   FiMinus,
   FiPlus,
-  FiMapPin,
-  FiClock,
   FiImage,
 } from "react-icons/fi";
-import {
-  FaCar,
-  FaCarSide,
-  FaMapMarkedAlt,
-  FaTachometerAlt,
-} from "react-icons/fa";
+import { FaCar, FaMapMarkedAlt, FaTachometerAlt } from "react-icons/fa";
 import { GiSteeringWheel } from "react-icons/gi";
 import gsap from "gsap";
 import CarImageLightbox from "./CarImageLightbox";
@@ -60,6 +51,38 @@ export default function CarAuctionDetail({ car }) {
   const vatRate = car.vatRate ?? 0.15;
   const vatAmount = Number((bidAmount * vatRate).toFixed(2));
   const totalAmount = Number((currentPrice + bidAmount + vatAmount).toFixed(2));
+
+  const formatCountdownText = (timeLeft) => {
+    if (!timeLeft) return "";
+
+    if (typeof timeLeft === "object" && timeLeft !== null) {
+      const days = Number(timeLeft.days ?? 0);
+      const dayUnit = isRtl
+        ? days === 1
+          ? "يوم"
+          : "أيام"
+        : days === 1
+          ? "Day"
+          : "Days";
+      return `${days} ${dayUnit} ${timeLeft.clock ?? ""}`.trim();
+    }
+
+    if (typeof timeLeft === "string") {
+      return timeLeft.replace(/\b(\d+)\s*D\b/i, (_, count) => {
+        const num = Number(count);
+        const dayUnit = isRtl
+          ? num === 1
+            ? "يوم"
+            : "أيام"
+          : num === 1
+            ? "Day"
+            : "Days";
+        return `${num} ${dayUnit}`;
+      });
+    }
+
+    return String(timeLeft);
+  };
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -246,7 +269,7 @@ export default function CarAuctionDetail({ car }) {
             <p className="text-xs sm:text-sm font-semibold font-brand-purple">
               {t("auctionEndsIn")}{" "}
               <span className="font-bold font-brand-purple">
-                {car.timeLeft}
+                {formatCountdownText(car.timeLeft)}
               </span>
             </p>
             <p className="text-xs sm:text-sm font-bold flex items-center gap-x-1">
