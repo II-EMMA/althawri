@@ -91,7 +91,7 @@ body {
   display: flex;
 }
 .line {
-  fill: black;
+  fill: none;
   stroke: black;
   stroke-width: 6;
   transition:

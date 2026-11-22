@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { FiX, FiChevronDown } from "react-icons/fi";
 import CampanyLogo from "@/assets/images/white-logo.svg";
 import gsap from "gsap";
+import { COUNTRIES } from "@/data/Countries";
 
 function CountryFlagSvg({ code }) {
   switch (code) {
@@ -120,37 +121,6 @@ function CountryFlagSvg({ code }) {
       );
   }
 }
-
-const COUNTRIES = [
-  {
-    code: "+966",
-    label: "+966 (المملكة العربية السعودية) Saudi Arabia",
-  },
-  {
-    code: "+20",
-    label: "+20 (مصر) Egypt",
-  },
-  {
-    code: "+93",
-    label: "+93 (افغانستان) Afghanistan",
-  },
-  {
-    code: "+355",
-    label: "Albania (Shqipëri) +355",
-  },
-  {
-    code: "+213",
-    label: "+213 (الجزائر) Algeria",
-  },
-  {
-    code: "+971",
-    label: "+971 (الإمارات) UAE",
-  },
-  {
-    code: "+965",
-    label: "+965 (الكويت) Kuwait",
-  },
-];
 
 export default function LoginModal({ isOpen, onClose, onOpenRegister }) {
   const locale = useLocale();
@@ -276,7 +246,7 @@ export default function LoginModal({ isOpen, onClose, onOpenRegister }) {
             background:
               "linear-gradient(135deg, rgba(78, 70, 128, 0.72) 0%, rgba(102, 93, 154, 0.68) 100%)",
           }}
-          className="md:col-span-5 text-white p-8 flex flex-col items-center justify-center text-center gap-6"
+          className="md:col-span-5 md:order-1 order-2 text-white p-8 flex flex-col items-center justify-center text-center gap-6"
         >
           <div className="flex flex-col items-center gap-2">
             <Image
@@ -304,7 +274,7 @@ export default function LoginModal({ isOpen, onClose, onOpenRegister }) {
         </div>
 
         {/* 2nd Div in DOM -> Left side in RTL: Transparent Linear Purple Brand Panel */}
-        <div className="md:col-span-7 p-6 sm:p-8 flex flex-col justify-between bg-white relative">
+        <div className="md:col-span-7 md:order-2 order-1 p-6 sm:p-8 flex flex-col justify-between bg-white relative">
           {/* Top Bar: Close Button & Modal Title */}
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-gray-800">
