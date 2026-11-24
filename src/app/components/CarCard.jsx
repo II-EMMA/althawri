@@ -72,7 +72,8 @@ export default function CarCard({ car, variant = "default" }) {
                   {t("currentPrice")}
                 </span>
                 <div className="flex items-center justify-center gap-1 text-sm font-bold text-brand-green">
-                  <Image src={Currancy} alt="currency" width={11} height={11} />
+                  {/* <Image src={Currancy} alt="currency" width={11} height={11} /> */}
+                  <span>{t("currency")}</span>
                   <span>{car.currentPrice}</span>
                   <Image src={Dollar} alt="dollar" width={16} height={16} />
                 </div>
@@ -86,7 +87,8 @@ export default function CarCard({ car, variant = "default" }) {
                 </span>
                 <div className="flex items-center justify-center gap-1 text-sm font-bold text-gray-700">
                   <span>{car.minBid}</span>
-                  <Image src={Currancy} alt="currency" width={11} height={11} />
+                  <span>{t("currency")}</span>
+                  {/* <Image src={Currancy} alt="currency" width={11} height={11} /> */}
                   <Image src={BID} alt="bid" width={16} height={16} />
                 </div>
               </div>
@@ -288,7 +290,8 @@ export default function CarCard({ car, variant = "default" }) {
                 </span>
                 <div className="flex items-center gap-1 text-sm font-bold text-gray-700">
                   <span>{car.minBid}</span>
-                  <Image src={Currancy} alt="currency" width={11} height={11} />
+                  <span>{t("currency")}</span>
+                  {/* <Image src={Currancy} alt="currency" width={11} height={11} /> */}
                 </div>
               </div>
 
@@ -299,7 +302,8 @@ export default function CarCard({ car, variant = "default" }) {
                   {t("currentPrice")}
                 </span>
                 <div className="flex items-center gap-1 text-sm font-bold text-brand-green">
-                  <Image src={Currancy} alt="currency" width={11} height={11} />
+                  {/* <Image src={Currancy} alt="currency" width={11} height={11} /> */}
+                  <span>{t("currency")}</span>
                   <span>{car.currentPrice}</span>
                   <Image src={Dollar} alt="dollar" width={16} height={16} />
                 </div>

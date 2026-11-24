@@ -119,7 +119,7 @@ export default function FAQPage() {
           href="/"
           className="hover:text-brand-green transition-colors flex items-center gap-1"
         >
-          <AiOutlineHome className="text-base" />
+          <AiOutlineHome className="md:text-base text-sm" />
           <span>{t("home")}</span>
         </Link>
         <IoChevronBack className="text-xs text-gray-400" />

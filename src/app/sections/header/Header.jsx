@@ -66,7 +66,7 @@ export default function Header() {
               alt="World Icon"
               className="object-contain"
             />
-            <span className="text-gray-1 text-base font-medium">
+            <span className="text-gray-1 md:text-base text-sm font-medium">
               {localeLabel}
             </span>
           </Link>

@@ -117,7 +117,8 @@
       "confiscated": "مسحوب"
     },
     "day": "يوم",
-    "days": "أيام"
+    "days": "أيام",
+    "currency": "ج.م"
   },
   "Brands": {
     "title": "تصفح حسب الماركة"
@@ -356,7 +357,7 @@
     "bidIncrement": "قيمة السعي",
     "vatAmount": "قيمة الضريبة المضافة",
     "total": "الاجمالي",
-    "currency": "ر.س",
+    "currency": "ج.م",
     "bidNow": "زايد",
     "bidSuccess": "تم تسجيل مزايدتك بنجاح",
     "linkCopied": "تم نسخ رابط السيارة",

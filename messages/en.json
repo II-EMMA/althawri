@@ -116,7 +116,8 @@
       "confiscated": "Confiscated"
     },
     "day": "Day",
-    "days": "Days"
+    "days": "Days",
+    "currency": "LE"
   },
   "Brands": {
     "title": "Browse by Brand"
@@ -355,7 +356,7 @@
     "bidIncrement": "Bid Increment",
     "vatAmount": "VAT Amount",
     "total": "Total",
-    "currency": "SAR",
+    "currency": "LE",
     "bidNow": "Bid",
     "bidSuccess": "Your bid has been placed successfully",
     "linkCopied": "Car link copied",

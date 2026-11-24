@@ -3,7 +3,8 @@
 import React from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { FiHome, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { AiOutlineHome } from "react-icons/ai";
 
 export default function AboutPage() {
   const locale = useLocale();
@@ -25,7 +26,7 @@ export default function AboutPage() {
             href="/"
             className="inline-flex items-center gap-1.5 hover:font-brand-green transition-colors"
           >
-            <FiHome className="text-sm shrink-0" />
+            <AiOutlineHome className="md:text-base text-sm shrink-0" />
             <span>{t("home")}</span>
           </Link>
 

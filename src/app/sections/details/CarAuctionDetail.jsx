@@ -16,7 +16,7 @@ import { FaCar, FaMapMarkedAlt, FaTachometerAlt } from "react-icons/fa";
 import { GiSteeringWheel } from "react-icons/gi";
 import gsap from "gsap";
 import CarImageLightbox from "./CarImageLightbox";
-import Currancy from "@/assets/icons/currancy.svg";
+// import Currancy from "@/assets/icons/currancy.svg";
 import { TfiHeadphoneAlt } from "react-icons/tfi";
 import { AiOutlineHome } from "react-icons/ai";
 
@@ -299,11 +299,14 @@ export default function CarAuctionDetail({ car }) {
                   >
                     {currentPrice.toFixed(2)}
                   </span>
-                  <Image
+                  <span className="text-gray-700 font-bold">
+                    {t("currency")}
+                  </span>
+                  {/* <Image
                     src={Currancy}
                     alt="Currancy Icon"
                     className="w-4.25 h-4.25"
-                  />
+                  /> */}
                 </div>
 
                 <div className="flex items-center gap-1.5">
@@ -313,11 +316,14 @@ export default function CarAuctionDetail({ car }) {
                   <span className="font-bold text-gray-900">
                     {stepValue.toFixed(2)}
                   </span>
-                  <Image
+                  <span className="text-gray-700 font-bold">
+                    {t("currency")}
+                  </span>
+                  {/* <Image
                     src={Currancy}
                     alt="Currancy Icon"
                     className="w-4.25 h-4.25"
-                  />
+                  /> */}
                 </div>
 
                 <div className="flex items-center gap-1.5">
@@ -327,11 +333,14 @@ export default function CarAuctionDetail({ car }) {
                   <span className="font-bold text-gray-900">
                     {vatAmount.toFixed(2)}
                   </span>
-                  <Image
+                  <span className="text-gray-700 font-bold">
+                    {t("currency")}
+                  </span>
+                  {/* <Image
                     src={Currancy}
                     alt="Currancy Icon"
                     className="w-4.25 h-4.25"
-                  />
+                  /> */}
                 </div>
 
                 <div className="flex items-center gap-1.5 pt-1">
@@ -341,11 +350,14 @@ export default function CarAuctionDetail({ car }) {
                   <span className="font-extrabold text-gray-950">
                     {totalAmount.toFixed(2)}
                   </span>
-                  <Image
+                  <span className="text-gray-800 font-semibold">
+                    {t("currency")}
+                  </span>
+                  {/* <Image
                     src={Currancy}
                     alt="Currancy Icon"
                     className="w-4.25 h-4.25"
-                  />
+                  /> */}
                 </div>
               </div>
 
