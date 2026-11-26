@@ -12,13 +12,13 @@
 //   return <CarAuctionDetail car={car} />;
 // }
 
+// import { FilterProvider } from "@/context/FilterContext";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { CARDS_DATA } from "@/data/auctionsData";
 import CarAuctionDetail from "@/app/sections/details/CarAuctionDetail";
 import CarAuctionDetailBottom from "@/app/sections/details/CarAuctionDetailBottom";
 import SimilarVehicles from "@/app/sections/details/SimilarVehicles";
-import { FilterProvider } from "@/context/FilterContext";
 
 export function generateStaticParams() {
   const locales = ["ar", "en"];
@@ -39,6 +39,11 @@ async function CarDetailContent({ params }) {
     notFound();
   }
 
+  // Filter 4 similar cars matching brand or category, excluding current car
+  const similarCars = CARDS_DATA.filter(
+    (item) => String(item.id) !== String(car.id),
+  ).slice(0, 4);
+
   return (
     <main className="min-h-screen bg-gray-50 pt-4 md:px-8 px-4">
       {/* Top Header / Bid Box */}
@@ -46,7 +51,7 @@ async function CarDetailContent({ params }) {
 
       {/* Specifications, Warning Notice & Bidders */}
       <CarAuctionDetailBottom car={car} bidders={car?.bidders ?? []} />
-      <SimilarVehicles currentCarId={car?.id} />
+      <SimilarVehicles cars={similarCars} />
     </main>
   );
 }

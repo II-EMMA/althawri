@@ -57,7 +57,7 @@ export default function Header() {
           <Link
             href={pathname}
             locale={targetLocale}
-            className="flex items-center gap-x-1.5 cursor-pointer"
+            className="inline-flex items-center gap-x-1.5 cursor-pointer"
           >
             <Image
               src={WorldIcon}
@@ -66,7 +66,7 @@ export default function Header() {
               alt="World Icon"
               className="object-contain"
             />
-            <span className="text-gray-1 md:text-base text-sm font-medium">
+            <span className="text-gray-1 text-base font-medium">
               {localeLabel}
             </span>
           </Link>

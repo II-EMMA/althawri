@@ -195,7 +195,7 @@ export default function HomeFilter() {
                   : "text-gray-400 hover:text-gray-600"
               }`}
             >
-              <TiThLargeOutline className="w-5 h-5" />
+              <TiThLargeOutline className="w-5 h-5 outline-none" />
             </button>
 
             <button
@@ -208,7 +208,7 @@ export default function HomeFilter() {
                   : "text-gray-500 hover:text-gray-600"
               }`}
             >
-              <FaList className="w-5 h-5" />
+              <FaList className="w-5 h-5 outline-none" />
             </button>
           </div>
 

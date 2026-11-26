@@ -145,3 +145,36 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background-color: rgba(255, 255, 255, 0.2);
 } */
+
+/* // Image Loading animation ==> */
+
+@keyframes clockwise {
+  0% {
+    transform: translateX(0);
+    width: 20px;
+  }
+  25% {
+    width: 25px;
+  }
+  50% {
+    transform: translateX(100%);
+    width: 20px;
+  }
+}
+
+@keyframes counter-clockwise {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-100%);
+  }
+}
+
+.loader-dot-clockwise {
+  animation: clockwise 1200ms infinite linear;
+}
+
+.loader-dot-counter {
+  animation: counter-clockwise 1200ms infinite linear;
+}

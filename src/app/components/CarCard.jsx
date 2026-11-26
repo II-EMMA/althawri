@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import BID from "@/assets/icons/bid.png";
@@ -17,6 +17,7 @@ export default function CarCard({ car, variant = "default" }) {
   const locale = useLocale();
   const isRtl = locale === "ar";
   const t = useTranslations("Cards");
+  const [isImageLoading, setIsImageLoading] = useState(true);
   // const filterContext = useFilter?.() || {};
 
   const { viewMode } = useFilter();
@@ -209,10 +210,28 @@ export default function CarCard({ car, variant = "default" }) {
 
           {/* 3. Right Side: Image with City Badge & Check File Icon */}
           <div className="relative w-56 h-36 rounded-md overflow-hidden bg-gray-100 shrink-0">
-            <Image src={car.image} alt="Car" fill className="object-cover" />
+            {isImageLoading && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-gray-100">
+                <div className="flex items-center">
+                  <span className="w-5 aspect-square rounded-full bg-[#fe2c55] loader-dot-clockwise" />
+                  <span className="w-5 aspect-square rounded-full bg-[#25f4ee] mix-blend-darken -ml-1.25 loader-dot-counter" />
+                </div>
+              </div>
+            )}
+
+            <Image
+              src={car.image}
+              alt="Car"
+              fill
+              onLoad={() => setIsImageLoading(false)}
+              onError={() => setIsImageLoading(false)}
+              className={`object-cover transition-opacity duration-300 ${
+                isImageLoading ? "opacity-0" : "opacity-100"
+              }`}
+            />
 
             {/* City Badge */}
-            <div className="absolute top-2.5 right-2.5 rounded-full py-0.5 px-3 bg-brand-purple">
+            <div className="absolute top-2.5 right-2.5 z-20 rounded-full py-0.5 px-3 bg-brand-purple">
               <p className="text-white text-xs font-bold">
                 {t(`cities.${car.cityKey}`)}
               </p>
@@ -222,7 +241,7 @@ export default function CarCard({ car, variant = "default" }) {
             <div
               className={`${
                 car.checkFile ? "absolute" : "hidden"
-              } top-2.5 left-2.5 w-8 h-8 bg-white rounded-lg p-1 shadow-sm flex items-center justify-center`}
+              } top-2.5 left-2.5 z-20 w-8 h-8 bg-white rounded-lg p-1 shadow-sm flex items-center justify-center`}
             >
               <Image src={CheckFile} alt="Check File" width={22} height={22} />
             </div>

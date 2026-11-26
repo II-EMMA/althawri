@@ -2,21 +2,17 @@
 
 import React, { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { CARDS_DATA } from "@/data/auctionsData";
 import CarCard from "@/app/components/CarCard";
+import Link from "next/link";
 
-export default function SimilarVehicles({ currentCarId }) {
+export default function SimilarVehicles({ cars = [] }) {
   const locale = useLocale();
   const isRtl = locale === "ar";
   const t = useTranslations("SimilarVehicles");
 
-  const [showAll, setShowAll] = useState(false);
+  // const [showAll, setShowAll] = useState(false);
 
-  const similarCars = CARDS_DATA.filter(
-    (item) => String(item.id) !== String(currentCarId),
-  );
-
-  const visibleCars = showAll ? similarCars : similarCars.slice(0, 4);
+  // const visibleCars = showAll ? cars : cars.slice(0, 4);
 
   return (
     <section
@@ -29,23 +25,22 @@ export default function SimilarVehicles({ currentCarId }) {
           {t("title")}
         </h2>
 
-        {similarCars.length > 4 && (
-          <button
-            type="button"
-            onClick={() => setShowAll((prev) => !prev)}
+        {cars.length > 0 && (
+          <Link
+            href="/auctions"
             className="bg-brand-green hover:opacity-90 text-white font-bold text-xs md:text-sm px-6 py-2 rounded-lg shadow-2xs transition-all cursor-pointer shrink-0"
           >
-            {showAll ? t("less") : t("more")}
-          </button>
+            {t("more")}
+          </Link>
         )}
       </div>
 
       {/* Similar Cars List */}
-      {visibleCars.length === 0 ? (
+      {cars.length === 0 ? (
         <p className="text-base font-gray-1 py-4">{t("noCars")}</p>
       ) : (
-        <div className="grid grid-cols-1 xl:grid-cols-3 sm:grid-cols-2 gap-4 bg-white  py-5 rounded-xl border border-t-0 border-gray-100">
-          {visibleCars.map((car) => (
+        <div className="grid grid-cols-1 xl:grid-cols-3 sm:grid-cols-2 gap-4 bg-white py-5 rounded-xl border border-t-0 border-gray-100">
+          {cars.slice(0, 4).map((car) => (
             <CarCard key={car.id} car={car} variant="sidebar" />
           ))}
         </div>

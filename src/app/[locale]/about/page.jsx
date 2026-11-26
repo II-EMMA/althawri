@@ -26,7 +26,7 @@ export default function AboutPage() {
             href="/"
             className="inline-flex items-center gap-1.5 hover:font-brand-green transition-colors"
           >
-            <AiOutlineHome className="md:text-base text-xs shrink-0" />
+            <AiOutlineHome className="md:text-base text-sm shrink-0" />
             <span>{t("home")}</span>
           </Link>
 

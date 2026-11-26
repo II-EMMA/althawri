@@ -89,10 +89,10 @@ export default function ShowCards() {
     }
 
     setIsFading(true);
-    setCardsVisible(false);
 
     transitionTimerRef.current = setTimeout(() => {
       updateFn();
+      setCardsVisible(true);
 
       requestAnimationFrame(() => {
         if (shouldScroll) {
@@ -100,10 +100,9 @@ export default function ShowCards() {
         }
         requestAnimationFrame(() => {
           setIsFading(false);
-          setCardsVisible(true);
         });
       });
-    }, 180);
+    }, 150);
   };
 
   const handlePageChange = (page) => {
@@ -237,18 +236,16 @@ export default function ShowCards() {
 
       {/* Forced Grid Under md (< 768px), Dynamic viewMode From md (>= 768px) */}
       <div
-        className={`grid grid-cols-1 gap-4 mt-6 md:hidden transition-opacity duration-300 ${
+        className={`grid grid-cols-1 gap-4 mt-6 md:hidden transition-opacity duration-200 ${
           isFading ? "opacity-40" : "opacity-100"
         }`}
       >
         {paginatedCards.map((car, idx) => (
           <div
             key={`${currentPage}-${pageSize}-${car.id}`}
-            style={{ transitionDelay: `${Math.min(idx * 35, 280)}ms` }}
-            className={`transition-all duration-300 ease-out ${
-              cardsVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-2"
+            style={{ transitionDelay: `${Math.min(idx * 20, 160)}ms` }}
+            className={`transition-opacity duration-200 ${
+              cardsVisible ? "opacity-100" : "opacity-100"
             }`}
           >
             <CarCard car={car} variant="sidebar" />
@@ -257,25 +254,31 @@ export default function ShowCards() {
       </div>
 
       <div
-        className={`hidden mt-6 transition-opacity duration-300 ${
+        className={`hidden mt-6 transition-opacity duration-200 ${
           isFading ? "opacity-40" : "opacity-100"
         } ${
           viewMode === "list"
             ? "md:flex md:flex-col md:gap-3"
-            : "md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4"
+            : "md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-4 md:items-stretch"
         }`}
       >
         {paginatedCards.map((car, idx) => (
           <div
             key={`${currentPage}-${pageSize}-${car.id}`}
-            style={{ transitionDelay: `${Math.min(idx * 35, 280)}ms` }}
-            className={`transition-all duration-300 ease-out ${
-              cardsVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-2"
-            }`}
+            style={{ transitionDelay: `${Math.min(idx * 20, 160)}ms` }}
+            className={`transition-opacity duration-200 ${
+              viewMode === "list" ? "w-full" : "h-full flex"
+            } ${cardsVisible ? "opacity-100" : "opacity-100"}`}
           >
-            <CarCard car={car} />
+            <div
+              className={
+                viewMode === "list"
+                  ? "w-full"
+                  : "w-full h-full flex [&>div]:w-full [&>div]:h-full"
+              }
+            >
+              <CarCard car={car} />
+            </div>
           </div>
         ))}
       </div>
