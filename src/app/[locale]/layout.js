@@ -15,6 +15,10 @@ const tajawal = Tajawal({
   // display: "swap",
 });
 
+export const metadata = {
+  title: "Mootery Auctions",
+  description: "NVP",
+};
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }

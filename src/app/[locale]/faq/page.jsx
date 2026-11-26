@@ -110,7 +110,7 @@ export default function FAQPage() {
 
   return (
     <div
-      dir={isRtl ? "rtl" : "ltr"}
+      dir={isRtl ? "rtl" : "trl"}
       className="min-h-screen bg-gray-50/50 py-8 px-6 md:px-16"
     >
       {/* Breadcrumb */}
@@ -119,7 +119,7 @@ export default function FAQPage() {
           href="/"
           className="hover:text-brand-green transition-colors flex items-center gap-1"
         >
-          <AiOutlineHome className="md:text-base text-sm" />
+          <AiOutlineHome className="md:text-base text-xs " />
           <span>{t("home")}</span>
         </Link>
         <IoChevronBack className="text-xs text-gray-400" />
@@ -137,10 +137,10 @@ export default function FAQPage() {
                 <button
                   key={cat.id}
                   onClick={() => handleTabChange(cat.id)}
-                  className={`w-full py-3.5 px-4 rounded-lg text-center font-bold text-sm transition-all ${
+                  className={`cursor-pointer w-full py-3.5 px-4 rounded-lg text-center font-bold text-sm transition-all ${
                     isSelected
                       ? "bg-brand-green text-white shadow-sm"
-                      : "text-gray-700 hover:bg-gray-50 hover:text-brand-green"
+                      : "font-gray-1 hover:text-brand-green"
                   }`}
                 >
                   {cat.label}
@@ -152,10 +152,10 @@ export default function FAQPage() {
           {/* Bottom Container: Additional Info / Quick Guide */}
           <div className="bg-white rounded-xl border border-gray-200/80 shadow-sm p-6 text-center">
             <h3 className="font-bold text-gray-800 text-sm mb-3">
-              {t("guideTitle")}
+              {!isRtl && "?"} {t("guideTitle")}
             </h3>
             <p className="text-xs text-gray-500 leading-relaxed">
-              {t("guideText")}
+              {!isRtl && "."} {t("guideText")}
             </p>
           </div>
         </div>
@@ -171,22 +171,24 @@ export default function FAQPage() {
               >
                 <button
                   onClick={() => toggleAccordion(index)}
-                  className="w-full flex items-center justify-between p-5 text-right bg-white hover:bg-gray-50/50 transition-colors"
+                  className={`w-full flex items-center ${!isRtl && "flex-row-reverse"} justify-between gap-x-4 p-5 text-right bg-white hover:bg-gray-50/50 transition-colors`}
                 >
-                  <span className="font-bold font-gray-1 text-sm md:text-base">
-                    {item.q}
+                  <span
+                    className={`${!isRtl && "text-end"} font-bold font-gray-1 text-sm md:text-base`}
+                  >
+                    {!isRtl && "?"} {item.q}
                   </span>
                   <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors shrink-0 ${
+                    className={`cursor-pointer sm:w-7 sm:h-7 w-5 h-5 rounded-full flex items-center justify-center border border-brand-green transition-colors shrink-0 ${
                       isOpen
                         ? "bg-brand-green/10 font-brand-green"
                         : "bg-gray-100 font-brand-green"
                     }`}
                   >
                     {isOpen ? (
-                      <FiMinus className="text-sm" />
+                      <FiMinus className="sm:text-sm text-xs" />
                     ) : (
-                      <FiPlus className="text-sm" />
+                      <FiPlus className="sm:text-sm text-xs" />
                     )}
                   </div>
                 </button>
@@ -199,9 +201,11 @@ export default function FAQPage() {
                     overflow: "hidden",
                   }}
                 >
-                  <div className="pt-2 pb-5">
-                    <div className="mx-5 pt-3 border-t border-gray-300 text-gray-600 text-sm leading-relaxed">
-                      {item.a}
+                  <div className="pt-2 pb-5 text-start">
+                    <div
+                      className={`${!isRtl && "text-end"} mx-5 pt-3 border-t border-gray-300 text-gray-600 text-sm leading-relaxed`}
+                    >
+                      {!isRtl && "."} {item.a}
                     </div>
                   </div>
                 </div>

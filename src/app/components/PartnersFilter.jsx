@@ -57,7 +57,7 @@ export default function PartnersFilter() {
 
   return (
     <div
-      dir={isRtl ? "rtl" : "ltr"}
+      dir="rtl"
       className="w-full bg-white rounded-md shadow-sm border border-gray-100 px-3 py-3 flex items-center gap-1.5"
     >
       {/* Left Arrow */}

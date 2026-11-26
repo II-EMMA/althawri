@@ -120,8 +120,21 @@ export default function ShowCards() {
     }, false);
   };
 
+  const visiblePages = useMemo(() => {
+    if (totalPages <= 3) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    if (currentPage === 1) return [1, 2, 3];
+    if (currentPage === totalPages) {
+      return [totalPages - 2, totalPages - 1, totalPages];
+    }
+    return [currentPage - 1, currentPage, currentPage + 1];
+  }, [currentPage, totalPages]);
+
+  const showLastPageBox = totalPages > 3 && !visiblePages.includes(totalPages);
+
   const renderCounterAndPages = () => (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center sm:flex-nowrap flex-wrap gap-x-3 gap-y-4 justify-center">
       <p className="text-gray-700 text-sm font-bold">
         {t("showingCount", {
           current: String(shownUpToCurrentPage),
@@ -130,24 +143,42 @@ export default function ShowCards() {
       </p>
 
       <div className="flex items-center gap-1.5">
-        {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-          (page) => {
-            const isActive = currentPage === page;
-            return (
-              <button
-                key={page}
-                type="button"
-                onClick={() => handlePageChange(page)}
-                className={`w-7 h-6 rounded text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
-                  isActive
-                    ? "bg-brand-green text-white shadow-xs"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {page}
-              </button>
-            );
-          },
+        {visiblePages.map((page) => {
+          const isActive = currentPage === page;
+          return (
+            <button
+              key={page}
+              type="button"
+              onClick={() => handlePageChange(page)}
+              className={`w-7 h-6 rounded text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
+                isActive
+                  ? "bg-brand-green text-white shadow-xs"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {page}
+            </button>
+          );
+        })}
+
+        {currentPage < totalPages && (
+          <button
+            type="button"
+            onClick={() => handlePageChange(currentPage + 1)}
+            className="px-2 h-6 rounded text-xs font-bold transition-all cursor-pointer flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200"
+          >
+            Next
+          </button>
+        )}
+
+        {showLastPageBox && (
+          <button
+            type="button"
+            onClick={() => handlePageChange(totalPages)}
+            className="w-7 h-6 rounded text-xs font-bold transition-all cursor-pointer flex items-center justify-center bg-gray-100 text-gray-600 hover:bg-gray-200"
+          >
+            {totalPages}
+          </button>
         )}
       </div>
     </div>
@@ -160,7 +191,7 @@ export default function ShowCards() {
       className="bg-white rounded-md shadow-sm border border-gray-100 px-6 py-3 flex flex-col mt-5 w-full"
     >
       {/* Top Bar with Dropdown, Counter & Page Boxes */}
-      <div className="flex flex-wrap justify-between items-center gap-3 relative">
+      <div className="flex flex-wrap justify-between items-center gap-3 relative mt-3">
         {/* Dropdown Toggle */}
         <div className="relative" ref={dropdownRef}>
           <button

@@ -25,6 +25,7 @@ export default function CarAuctionDetail({ car }) {
   const isRtl = locale === "ar";
   const t = useTranslations("CarDetail");
   const tCars = useTranslations("Cars");
+  const isUrgent = Boolean(car?.isEndingSoon || car?.urgent);
 
   const basePrice = Number(car.currentPrice) || 0;
   const stepValue = Number(car.minBid) || 500;
@@ -153,15 +154,15 @@ export default function CarAuctionDetail({ car }) {
     <section
       ref={containerRef}
       dir={isRtl ? "rtl" : "ltr"}
-      className="max-w-7xl mx-auto  pb-6 text-gray-900"
+      className="max-w-7xl mx-auto pb-6 text-gray-900"
     >
       {/* Breadcrumb */}
-      <nav className="gsap-stagger flex items-center justify-start gap-1.5 text-sm text-gray-600 mb-5 py-4">
+      <nav className="gsap-stagger flex items-center justify-start gap-1.5 text-sm text-gray-600 mb-3 py-4">
         <Link
           href="/"
           className="hover:text-brand-green transition-colors flex items-center gap-1"
         >
-          <AiOutlineHome className="text-base" />
+          <AiOutlineHome className="md:text-base text-xs" />
           <span>{t("home")}</span>
         </Link>
         {isRtl ? (
@@ -266,9 +267,13 @@ export default function CarAuctionDetail({ car }) {
 
           {/* 2. Under the bar: Countdown Timer & Bids Count */}
           <div className="gsap-stagger flex justify-between items-center space-y-1.5 text-start">
-            <p className="text-xs sm:text-sm font-semibold font-brand-purple">
+            <p
+              className={`mt-1.75 text-xs sm:text-sm font-bold ${isUrgent ? "font-brand-red" : "font-brand-purple"}`}
+            >
               {t("auctionEndsIn")}{" "}
-              <span className="font-bold font-brand-purple">
+              <span
+                className={`font-bold ${isUrgent ? "font-brand-red" : "font-brand-purple"}`}
+              >
                 {formatCountdownText(car.timeLeft)}
               </span>
             </p>
@@ -288,20 +293,15 @@ export default function CarAuctionDetail({ car }) {
                 {carTitle}
               </h1>
 
-              <div className="space-y-7 mt-6.5 text-xs sm:text-sm border-b border-gray-200 pb-3.5">
+              <div className="space-y-7 mt-6.5 lg:text-sm text-base border-b border-gray-200 pb-3.5">
                 <div className="flex items-center gap-1.5">
                   <span className="text-gray-700 font-medium">
                     {t("currentPrice")} :
                   </span>
-                  <span
-                    ref={priceRef}
-                    className="font-bold text-gray-950 text-sm sm:text-base"
-                  >
+                  <span ref={priceRef} className="font-bold text-gray-950">
                     {currentPrice.toFixed(2)}
                   </span>
-                  <span className="text-gray-700 font-bold">
-                    {t("currency")}
-                  </span>
+                  <span className="font-gray-1 font-bold">{t("currency")}</span>
                   {/* <Image
                     src={Currancy}
                     alt="Currancy Icon"
@@ -316,9 +316,7 @@ export default function CarAuctionDetail({ car }) {
                   <span className="font-bold text-gray-900">
                     {stepValue.toFixed(2)}
                   </span>
-                  <span className="text-gray-700 font-bold">
-                    {t("currency")}
-                  </span>
+                  <span className="font-gray-1 font-bold">{t("currency")}</span>
                   {/* <Image
                     src={Currancy}
                     alt="Currancy Icon"
@@ -333,9 +331,7 @@ export default function CarAuctionDetail({ car }) {
                   <span className="font-bold text-gray-900">
                     {vatAmount.toFixed(2)}
                   </span>
-                  <span className="text-gray-700 font-bold">
-                    {t("currency")}
-                  </span>
+                  <span className="font-gray-1 font-bold">{t("currency")}</span>
                   {/* <Image
                     src={Currancy}
                     alt="Currancy Icon"
@@ -350,7 +346,7 @@ export default function CarAuctionDetail({ car }) {
                   <span className="font-extrabold text-gray-950">
                     {totalAmount.toFixed(2)}
                   </span>
-                  <span className="text-gray-800 font-semibold">
+                  <span className="font-gray-1 font-semibold">
                     {t("currency")}
                   </span>
                   {/* <Image

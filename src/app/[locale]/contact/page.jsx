@@ -26,7 +26,7 @@ export default function ContactUsPage() {
           href="/"
           className="hover:text-brand-green transition-colors flex items-center gap-1"
         >
-          <AiOutlineHome className="md:text-base text-sm" />
+          <AiOutlineHome className="md:text-base text-xs" />
           <span>{t("home")}</span>
         </Link>
         <IoChevronBack

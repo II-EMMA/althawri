@@ -24,7 +24,7 @@ export default async function HomePage({ params }) {
         <HeroFilter />
 
         <div className="flex xl:flex-row flex-col  mt-6">
-          <AuctionCard />
+          <AuctionCard dir={isRtl} />
           {/* <FilterSidebar /> */}
           <div className="flex-1 flex flex-col">
             <div className="w-full flex flex-col space-y-4">

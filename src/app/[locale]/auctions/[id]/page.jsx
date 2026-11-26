@@ -40,7 +40,7 @@ async function CarDetailContent({ params }) {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 py-8 md:px-8 px-4">
+    <main className="min-h-screen bg-gray-50 pt-4 md:px-8 px-4">
       {/* Top Header / Bid Box */}
       <CarAuctionDetail car={car} />
 
