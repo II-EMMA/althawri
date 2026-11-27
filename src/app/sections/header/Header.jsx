@@ -57,16 +57,16 @@ export default function Header() {
           <Link
             href={pathname}
             locale={targetLocale}
-            className="inline-flex items-center gap-x-1.5 cursor-pointer"
+            className="inline-flex items-center gap-x-1.5 leading-none cursor-pointer"
           >
             <Image
               src={WorldIcon}
               width={20}
               height={20}
               alt="World Icon"
-              className="object-contain"
+              className="object-contain shrink-0"
             />
-            <span className="text-gray-1 text-base font-medium">
+            <span className="text-gray-1 text-base font-medium leading-none">
               {localeLabel}
             </span>
           </Link>

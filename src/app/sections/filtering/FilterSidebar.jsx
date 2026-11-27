@@ -7,12 +7,17 @@ import gsap from "gsap";
 import GreenBtn from "@/app/components/GreenBtn";
 import { IoClose } from "react-icons/io5";
 
-export default function FilterSidebar() {
+export default function FilterSidebar({
+  isDrawer = false,
+  isOpen = false,
+  onClose = () => {},
+}) {
   const locale = useLocale();
   const isRtl = locale === "ar";
   const t = useTranslations("FilterSidebar");
   const [openSection, setOpenSection] = useState("saleType");
   const [selected, setSelected] = useState({ saleType: ["شراء مباشر"] });
+  const [headerBottom, setHeaderBottom] = useState(0);
 
   // Price Range State
   const MIN = 0;
@@ -24,6 +29,73 @@ export default function FilterSidebar() {
   const rangeRef = useRef(null);
   const minHandleRef = useRef(null);
   const maxHandleRef = useRef(null);
+  const drawerRef = useRef(null);
+  const backdropRef = useRef(null);
+
+  useEffect(() => {
+    if (!isDrawer) return;
+
+    const updateHeaderOffset = () => {
+      const headerEl = document.querySelector("header");
+      if (!headerEl) {
+        setHeaderBottom(0);
+        return;
+      }
+      const rect = headerEl.getBoundingClientRect();
+      setHeaderBottom(Math.max(0, Math.round(rect.bottom)));
+    };
+
+    updateHeaderOffset();
+    window.addEventListener("resize", updateHeaderOffset);
+    window.addEventListener("scroll", updateHeaderOffset, { passive: true });
+
+    return () => {
+      window.removeEventListener("resize", updateHeaderOffset);
+      window.removeEventListener("scroll", updateHeaderOffset);
+    };
+  }, [isDrawer, isOpen]);
+
+  useEffect(() => {
+    if (!isDrawer || !isOpen || !drawerRef.current) return;
+
+    const closedXPercent = isRtl ? 100 : -100;
+    gsap.killTweensOf([drawerRef.current, backdropRef.current]);
+    gsap.fromTo(
+      drawerRef.current,
+      { xPercent: closedXPercent },
+      { xPercent: 0, duration: 0.32, ease: "power3.out" },
+    );
+    if (backdropRef.current) {
+      gsap.fromTo(
+        backdropRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.25, ease: "power2.out" },
+      );
+    }
+  }, [isDrawer, isOpen, isRtl]);
+
+  const handleSmoothClose = () => {
+    if (!isDrawer || !drawerRef.current) {
+      onClose();
+      return;
+    }
+
+    const closedXPercent = isRtl ? 100 : -100;
+    gsap.killTweensOf([drawerRef.current, backdropRef.current]);
+    gsap.to(drawerRef.current, {
+      xPercent: closedXPercent,
+      duration: 0.26,
+      ease: "power3.in",
+      onComplete: onClose,
+    });
+    if (backdropRef.current) {
+      gsap.to(backdropRef.current, {
+        opacity: 0,
+        duration: 0.22,
+        ease: "power2.in",
+      });
+    }
+  };
 
   const percent = (value) => ((value - MIN) / (MAX - MIN)) * 100;
   const valueFromX = (x, trackWidth) =>
@@ -47,7 +119,7 @@ export default function FilterSidebar() {
       }
     };
     updateVisuals();
-  }, [minPrice, maxPrice]);
+  }, [minPrice, maxPrice, isOpen]);
 
   const makeDraggable = (ref, isMin) => {
     const handle = ref.current;
@@ -81,7 +153,7 @@ export default function FilterSidebar() {
   useEffect(() => {
     makeDraggable(minHandleRef, true);
     makeDraggable(maxHandleRef, false);
-  }, []);
+  }, [isOpen]);
 
   const toggleAccordion = (sectionKey, contentRef) => {
     if (openSection === sectionKey) {
@@ -123,377 +195,414 @@ export default function FilterSidebar() {
     setSelected((prev) => ({ ...prev, [category]: [] }));
   };
 
-  return (
+  if (isDrawer && !isOpen) return null;
+
+  const sidebarContent = (
     <aside
+      ref={isDrawer ? drawerRef : null}
       dir={isRtl ? "rtl" : "ltr"}
-      className="lg:block hidden w-52.75 mx-2 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden text-right"
+      style={
+        isDrawer
+          ? {
+              top: `${headerBottom}px`,
+              height: `calc(100vh - ${headerBottom}px)`,
+            }
+          : undefined
+      }
+      className={
+        isDrawer
+          ? "fixed start-0 w-72 max-w-[85vw] z-40 bg-white shadow-xl border-e border-gray-100 overflow-y-auto text-right flex flex-col justify-between will-change-transform"
+          : "lg:block hidden w-52.75 mx-2 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden text-right"
+      }
     >
-      {/* 1. نوع البيع */}
-      <FilterSection
-        title={t("brand")}
-        sectionKey="saleType"
-        openSection={openSection}
-        onToggle={toggleAccordion}
-        onClear={() => clearSection("saleType")}
-      >
-        <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
-          <CheckboxItem
-            label={t("options.all")}
-            checked={selected.saleType?.includes("الكل")}
-            onChange={() => toggleOption("saleType", "الكل")}
-          />
-          <CheckboxItem
-            label={t("options.auction")}
-            checked={selected.saleType?.includes("مزاد")}
-            onChange={() => toggleOption("saleType", "مزاد")}
-          />
-          <CheckboxItem
-            label={t("options.directBuy")}
-            checked={selected.saleType?.includes("شراء مباشر")}
-            onChange={() => toggleOption("saleType", "شراء مباشر")}
-          />
-          <CheckboxItem
-            label={t("options.both")}
-            checked={selected.saleType?.includes("كلاهما")}
-            onChange={() => toggleOption("saleType", "كلاهما")}
-          />
-        </div>
-      </FilterSection>
+      <div>
+        {isDrawer && (
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 sticky top-0 bg-white z-20">
+            <span className="text-sm font-bold text-gray-800">
+              {t("brand")}
+            </span>
+            <button
+              type="button"
+              onClick={handleSmoothClose}
+              aria-label="Close filter"
+              className="p-1 rounded text-gray-500 hover:text-gray-800 cursor-pointer"
+            >
+              <IoClose className="w-5 h-5" />
+            </button>
+          </div>
+        )}
 
-      {/* 2. المدينة */}
-      <FilterSection
-        title={t("city")}
-        sectionKey="city"
-        openSection={openSection}
-        onToggle={toggleAccordion}
-        onClear={() => clearSection("city")}
-      >
-        <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
-          <CheckboxItem
-            label={t("options.riyadh")}
-            checked={selected.city?.includes("الرياض")}
-            onChange={() => toggleOption("city", "الرياض")}
-          />
-          <CheckboxItem
-            label={t("options.jeddah")}
-            checked={selected.city?.includes("جدة")}
-            onChange={() => toggleOption("city", "جدة")}
-          />
-        </div>
-      </FilterSection>
-
-      {/* 3. الماركة */}
-      <FilterSection
-        title={t("style")}
-        sectionKey="style"
-        openSection={openSection}
-        onToggle={toggleAccordion}
-        onClear={() => clearSection("style")}
-      >
-        <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
-          <CheckboxItem
-            label={t("options.gmc")}
-            checked={selected.style?.includes("جي أم سي")}
-            onChange={() => toggleOption("style", "جي أم سي")}
-          />
-          <CheckboxItem
-            label={t("options.foton")}
-            checked={selected.style?.includes("فوتون")}
-            onChange={() => toggleOption("style", "فوتون")}
-          />
-          <CheckboxItem
-            label={t("options.saic")}
-            checked={selected.style?.includes("سايك موتور")}
-            onChange={() => toggleOption("style", "سايك موتور")}
-          />
-          <CheckboxItem
-            label={t("options.byd")}
-            checked={selected.style?.includes("بي واي دي")}
-            onChange={() => toggleOption("style", "بي واي دي")}
-          />
-          <CheckboxItem
-            label={t("options.faw")}
-            checked={selected.style?.includes("فاوي")}
-            onChange={() => toggleOption("style", "فاوي")}
-          />
-          <CheckboxItem
-            label={t("options.jينيور")}
-            checked={selected.style?.includes("جينور")}
-            onChange={() => toggleOption("style", "جينور")}
-          />
-        </div>
-      </FilterSection>
-
-      {/* 4. الشكل */}
-      <FilterSection
-        title={t("shape")}
-        sectionKey="shape"
-        openSection={openSection}
-        onToggle={toggleAccordion}
-        onClear={() => clearSection("shape")}
-      >
-        <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
-          <CheckboxItem
-            label={t("options.mpv")}
-            checked={selected.shape?.includes("ام بي في")}
-            onChange={() => toggleOption("shape", "ام بي في")}
-          />
-          <CheckboxItem
-            label={t("options.fridge")}
-            checked={selected.shape?.includes("ثلاجه")}
-            onChange={() => toggleOption("shape", "ثلاجه")}
-          />
-          <CheckboxItem
-            label={t("options.singleCab")}
-            checked={selected.shape?.includes("بكب غمارة")}
-            onChange={() => toggleOption("shape", "بكب غمارة")}
-          />
-          <CheckboxItem
-            label={t("options.doubleCab")}
-            checked={selected.shape?.includes("بكب غمارتين")}
-            onChange={() => toggleOption("shape", "بكب غمارتين")}
-          />
-          <CheckboxItem
-            label={t("options.bus")}
-            checked={selected.shape?.includes("باص")}
-            onChange={() => toggleOption("shape", "باص")}
-          />
-          <CheckboxItem
-            label={t("options.pickup")}
-            checked={selected.shape?.includes("بكب")}
-            onChange={() => toggleOption("shape", "بكب")}
-          />
-        </div>
-      </FilterSection>
-
-      {/* 5. سنة الصنع */}
-      <FilterSection
-        title={t("year")}
-        sectionKey="year"
-        openSection={openSection}
-        onToggle={toggleAccordion}
-        onClear={() => clearSection("year")}
-      >
-        <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
-          <CheckboxItem
-            label="2026"
-            checked={selected.year?.includes("2026")}
-            onChange={() => toggleOption("year", "2026")}
-          />
-          <CheckboxItem
-            label="2025"
-            checked={selected.year?.includes("2025")}
-            onChange={() => toggleOption("year", "2025")}
-          />
-          <CheckboxItem
-            label="2024"
-            checked={selected.year?.includes("2024")}
-            onChange={() => toggleOption("year", "2024")}
-          />
-          <CheckboxItem
-            label="2023"
-            checked={selected.year?.includes("2023")}
-            onChange={() => toggleOption("year", "2023")}
-          />
-          <CheckboxItem
-            label="2022"
-            checked={selected.year?.includes("2022")}
-            onChange={() => toggleOption("year", "2022")}
-          />
-          <CheckboxItem
-            label="2021"
-            checked={selected.year?.includes("2021")}
-            onChange={() => toggleOption("year", "2021")}
-          />
-        </div>
-      </FilterSection>
-
-      {/* 6. حالة السيارة */}
-      <FilterSection
-        title={t("case")}
-        sectionKey="case"
-        openSection={openSection}
-        onToggle={toggleAccordion}
-        onClear={() => clearSection("case")}
-      >
-        <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
-          <CheckboxItem
-            label={t("options.damaged")}
-            checked={selected.case?.includes("مصدوم")}
-            onChange={() => toggleOption("case", "مصدوم")}
-          />
-          <CheckboxItem
-            label={t("options.fire")}
-            checked={selected.case?.includes("حريق")}
-            onChange={() => toggleOption("case", "حريق")}
-          />
-          <CheckboxItem
-            label={t("options.flooded")}
-            checked={selected.case?.includes("غرقان")}
-            onChange={() => toggleOption("case", "غرقان")}
-          />
-          <CheckboxItem
-            label={t("options.used")}
-            checked={selected.case?.includes("مستعمل")}
-            onChange={() => toggleOption("case", "مستعمل")}
-          />
-          <CheckboxItem
-            label={t("options.towed")}
-            checked={selected.case?.includes("مسحوب")}
-            onChange={() => toggleOption("case", "مسحوب")}
-          />
-        </div>
-      </FilterSection>
-
-      {/* 7. السعر (بالالاف) */}
-      <FilterSection
-        title={t("priceRange")}
-        sectionKey="price"
-        openSection={openSection}
-        onToggle={toggleAccordion}
-      >
-        <div className="py-6 px-2">
-          <div
-            ref={trackRef}
-            className="relative w-full h-1.5 bg-[#F0F0F0] rounded-full mb-6"
-          >
-            <div
-              ref={rangeRef}
-              className="absolute top-0 h-full bg-brand-green mt-0.5 rounded-full transition-all duration-150"
+        {/* 1. نوع البيع */}
+        <FilterSection
+          title={t("brand")}
+          sectionKey="saleType"
+          openSection={openSection}
+          onToggle={toggleAccordion}
+          onClear={() => clearSection("saleType")}
+        >
+          <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+            <CheckboxItem
+              label={t("options.all")}
+              checked={selected.saleType?.includes("الكل")}
+              onChange={() => toggleOption("saleType", "الكل")}
             />
+            <CheckboxItem
+              label={t("options.auction")}
+              checked={selected.saleType?.includes("مزاد")}
+              onChange={() => toggleOption("saleType", "مزاد")}
+            />
+            <CheckboxItem
+              label={t("options.directBuy")}
+              checked={selected.saleType?.includes("شراء مباشر")}
+              onChange={() => toggleOption("saleType", "شراء مباشر")}
+            />
+            <CheckboxItem
+              label={t("options.both")}
+              checked={selected.saleType?.includes("كلاهما")}
+              onChange={() => toggleOption("saleType", "كلاهما")}
+            />
+          </div>
+        </FilterSection>
 
-            {/* Min Handle */}
+        {/* 2. المدينة */}
+        <FilterSection
+          title={t("city")}
+          sectionKey="city"
+          openSection={openSection}
+          onToggle={toggleAccordion}
+          onClear={() => clearSection("city")}
+        >
+          <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+            <CheckboxItem
+              label={t("options.riyadh")}
+              checked={selected.city?.includes("الرياض")}
+              onChange={() => toggleOption("city", "الرياض")}
+            />
+            <CheckboxItem
+              label={t("options.jeddah")}
+              checked={selected.city?.includes("جدة")}
+              onChange={() => toggleOption("city", "جدة")}
+            />
+          </div>
+        </FilterSection>
+
+        {/* 3. الماركة */}
+        <FilterSection
+          title={t("style")}
+          sectionKey="style"
+          openSection={openSection}
+          onToggle={toggleAccordion}
+          onClear={() => clearSection("style")}
+        >
+          <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+            <CheckboxItem
+              label={t("options.gmc")}
+              checked={selected.style?.includes("جي أم سي")}
+              onChange={() => toggleOption("style", "جي أم سي")}
+            />
+            <CheckboxItem
+              label={t("options.foton")}
+              checked={selected.style?.includes("فوتون")}
+              onChange={() => toggleOption("style", "فوتون")}
+            />
+            <CheckboxItem
+              label={t("options.saic")}
+              checked={selected.style?.includes("سايك موتور")}
+              onChange={() => toggleOption("style", "سايك موتور")}
+            />
+            <CheckboxItem
+              label={t("options.byd")}
+              checked={selected.style?.includes("بي واي دي")}
+              onChange={() => toggleOption("style", "بي واي دي")}
+            />
+            <CheckboxItem
+              label={t("options.faw")}
+              checked={selected.style?.includes("فاوي")}
+              onChange={() => toggleOption("style", "فاوي")}
+            />
+            <CheckboxItem
+              label={t("options.jينيور")}
+              checked={selected.style?.includes("جينور")}
+              onChange={() => toggleOption("style", "جينور")}
+            />
+          </div>
+        </FilterSection>
+
+        {/* 4. الشكل */}
+        <FilterSection
+          title={t("shape")}
+          sectionKey="shape"
+          openSection={openSection}
+          onToggle={toggleAccordion}
+          onClear={() => clearSection("shape")}
+        >
+          <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+            <CheckboxItem
+              label={t("options.mpv")}
+              checked={selected.shape?.includes("ام بي في")}
+              onChange={() => toggleOption("shape", "ام بي في")}
+            />
+            <CheckboxItem
+              label={t("options.fridge")}
+              checked={selected.shape?.includes("ثلاجه")}
+              onChange={() => toggleOption("shape", "ثلاجه")}
+            />
+            <CheckboxItem
+              label={t("options.singleCab")}
+              checked={selected.shape?.includes("بكب غمارة")}
+              onChange={() => toggleOption("shape", "بكب غمارة")}
+            />
+            <CheckboxItem
+              label={t("options.doubleCab")}
+              checked={selected.shape?.includes("بكب غمارتين")}
+              onChange={() => toggleOption("shape", "بكب غمارتين")}
+            />
+            <CheckboxItem
+              label={t("options.bus")}
+              checked={selected.shape?.includes("باص")}
+              onChange={() => toggleOption("shape", "باص")}
+            />
+            <CheckboxItem
+              label={t("options.pickup")}
+              checked={selected.shape?.includes("بكب")}
+              onChange={() => toggleOption("shape", "بكب")}
+            />
+          </div>
+        </FilterSection>
+
+        {/* 5. سنة الصنع */}
+        <FilterSection
+          title={t("year")}
+          sectionKey="year"
+          openSection={openSection}
+          onToggle={toggleAccordion}
+          onClear={() => clearSection("year")}
+        >
+          <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+            <CheckboxItem
+              label="2026"
+              checked={selected.year?.includes("2026")}
+              onChange={() => toggleOption("year", "2026")}
+            />
+            <CheckboxItem
+              label="2025"
+              checked={selected.year?.includes("2025")}
+              onChange={() => toggleOption("year", "2025")}
+            />
+            <CheckboxItem
+              label="2024"
+              checked={selected.year?.includes("2024")}
+              onChange={() => toggleOption("year", "2024")}
+            />
+            <CheckboxItem
+              label="2023"
+              checked={selected.year?.includes("2023")}
+              onChange={() => toggleOption("year", "2023")}
+            />
+            <CheckboxItem
+              label="2022"
+              checked={selected.year?.includes("2022")}
+              onChange={() => toggleOption("year", "2022")}
+            />
+            <CheckboxItem
+              label="2021"
+              checked={selected.year?.includes("2021")}
+              onChange={() => toggleOption("year", "2021")}
+            />
+          </div>
+        </FilterSection>
+
+        {/* 6. حالة السيارة */}
+        <FilterSection
+          title={t("case")}
+          sectionKey="case"
+          openSection={openSection}
+          onToggle={toggleAccordion}
+          onClear={() => clearSection("case")}
+        >
+          <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+            <CheckboxItem
+              label={t("options.damaged")}
+              checked={selected.case?.includes("مصدوم")}
+              onChange={() => toggleOption("case", "مصدوم")}
+            />
+            <CheckboxItem
+              label={t("options.fire")}
+              checked={selected.case?.includes("حريق")}
+              onChange={() => toggleOption("case", "حريق")}
+            />
+            <CheckboxItem
+              label={t("options.flooded")}
+              checked={selected.case?.includes("غرقان")}
+              onChange={() => toggleOption("case", "غرقان")}
+            />
+            <CheckboxItem
+              label={t("options.used")}
+              checked={selected.case?.includes("مستعمل")}
+              onChange={() => toggleOption("case", "مستعمل")}
+            />
+            <CheckboxItem
+              label={t("options.towed")}
+              checked={selected.case?.includes("مسحوب")}
+              onChange={() => toggleOption("case", "مسحوب")}
+            />
+          </div>
+        </FilterSection>
+
+        {/* 7. السعر (بالالاف) */}
+        <FilterSection
+          title={t("priceRange")}
+          sectionKey="price"
+          openSection={openSection}
+          onToggle={toggleAccordion}
+        >
+          <div className="py-6 px-2">
             <div
-              ref={minHandleRef}
-              className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-brand-green rounded-full cursor-pointer z-10 shadow-sm"
-              onMouseEnter={() => gsap.to(minHandleRef.current, { scale: 1.2 })}
-              onMouseLeave={() => gsap.to(minHandleRef.current, { scale: 1 })}
+              ref={trackRef}
+              className="relative w-full h-1.5 bg-[#F0F0F0] rounded-full mb-6"
             >
-              <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 text-xs text-gray-600 font-semibold whitespace-nowrap">
-                {minPrice} الف
+              <div
+                ref={rangeRef}
+                className="absolute top-0 h-full bg-brand-green mt-0.5 rounded-full transition-all duration-150"
+              />
+
+              {/* Min Handle */}
+              <div
+                ref={minHandleRef}
+                className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-brand-green rounded-full cursor-pointer z-10 shadow-sm"
+                onMouseEnter={() =>
+                  gsap.to(minHandleRef.current, { scale: 1.2 })
+                }
+                onMouseLeave={() => gsap.to(minHandleRef.current, { scale: 1 })}
+              >
+                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 text-xs text-gray-600 font-semibold whitespace-nowrap">
+                  {minPrice} الف
+                </div>
               </div>
-            </div>
 
-            {/* Max Handle */}
-            <div
-              ref={maxHandleRef}
-              className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-brand-green rounded-full cursor-pointer z-10 shadow-sm -ml-1"
-              onMouseEnter={() => gsap.to(maxHandleRef.current, { scale: 1.2 })}
-              onMouseLeave={() => gsap.to(maxHandleRef.current, { scale: 1 })}
-            >
-              <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 text-xs text-gray-600 font-semibold whitespace-nowrap">
-                {maxPrice} الف
+              {/* Max Handle */}
+              <div
+                ref={maxHandleRef}
+                className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-brand-green rounded-full cursor-pointer z-10 shadow-sm -ml-1"
+                onMouseEnter={() =>
+                  gsap.to(maxHandleRef.current, { scale: 1.2 })
+                }
+                onMouseLeave={() => gsap.to(maxHandleRef.current, { scale: 1 })}
+              >
+                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 text-xs text-gray-600 font-semibold whitespace-nowrap">
+                  {maxPrice} الف
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </FilterSection>
+        </FilterSection>
 
-      {/* 8. اللون الخارجي */}
-      <FilterSection
-        title={t("extColor")}
-        sectionKey="extColor"
-        openSection={openSection}
-        onToggle={toggleAccordion}
-        onClear={() => clearSection("extColor")}
-      >
-        <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
-          <CheckboxItem
-            label={t("options.beige")}
-            checked={selected.extColor?.includes("بيج")}
-            onChange={() => toggleOption("extColor", "بيج")}
-          />
-          <CheckboxItem
-            label={t("options.black")}
-            checked={selected.extColor?.includes("أسود")}
-            onChange={() => toggleOption("extColor", "أسود")}
-          />
-          <CheckboxItem
-            label={t("options.red")}
-            checked={selected.extColor?.includes("أحمر")}
-            onChange={() => toggleOption("extColor", "أحمر")}
-          />
-          <CheckboxItem
-            label={t("options.brown")}
-            checked={selected.extColor?.includes("بني")}
-            onChange={() => toggleOption("extColor", "بني")}
-          />
-          <CheckboxItem
-            label={t("options.burgundy")}
-            checked={selected.extColor?.includes("Burgundy")}
-            onChange={() => toggleOption("extColor", "Burgundy")}
-          />
-          <CheckboxItem
-            label={t("options.charcoal")}
-            checked={selected.extColor?.includes("فحم")}
-            onChange={() => toggleOption("extColor", "فحم")}
-          />
-        </div>
-      </FilterSection>
+        {/* 8. اللون الخارجي */}
+        <FilterSection
+          title={t("extColor")}
+          sectionKey="extColor"
+          openSection={openSection}
+          onToggle={toggleAccordion}
+          onClear={() => clearSection("extColor")}
+        >
+          <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+            <CheckboxItem
+              label={t("options.beige")}
+              checked={selected.extColor?.includes("بيج")}
+              onChange={() => toggleOption("extColor", "بيج")}
+            />
+            <CheckboxItem
+              label={t("options.black")}
+              checked={selected.extColor?.includes("أسود")}
+              onChange={() => toggleOption("extColor", "أسود")}
+            />
+            <CheckboxItem
+              label={t("options.red")}
+              checked={selected.extColor?.includes("أحمر")}
+              onChange={() => toggleOption("extColor", "أحمر")}
+            />
+            <CheckboxItem
+              label={t("options.brown")}
+              checked={selected.extColor?.includes("بني")}
+              onChange={() => toggleOption("extColor", "بني")}
+            />
+            <CheckboxItem
+              label={t("options.burgundy")}
+              checked={selected.extColor?.includes("Burgundy")}
+              onChange={() => toggleOption("extColor", "Burgundy")}
+            />
+            <CheckboxItem
+              label={t("options.charcoal")}
+              checked={selected.extColor?.includes("فحم")}
+              onChange={() => toggleOption("extColor", "فحم")}
+            />
+          </div>
+        </FilterSection>
 
-      {/* 9. نوع الجير */}
-      <FilterSection
-        title={t("transmission")}
-        sectionKey="transmission"
-        openSection={openSection}
-        onToggle={toggleAccordion}
-        onClear={() => clearSection("transmission")}
-      >
-        <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
-          <CheckboxItem
-            label={t("options.automatic")}
-            checked={selected.transmission?.includes("اوتوماتيك")}
-            onChange={() => toggleOption("transmission", "اوتوماتيك")}
-          />
-          <CheckboxItem
-            label={t("options.manual")}
-            checked={selected.transmission?.includes("عادي")}
-            onChange={() => toggleOption("transmission", "عادي")}
-          />
-        </div>
-      </FilterSection>
+        {/* 9. نوع الجير */}
+        <FilterSection
+          title={t("transmission")}
+          sectionKey="transmission"
+          openSection={openSection}
+          onToggle={toggleAccordion}
+          onClear={() => clearSection("transmission")}
+        >
+          <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+            <CheckboxItem
+              label={t("options.automatic")}
+              checked={selected.transmission?.includes("اوتوماتيك")}
+              onChange={() => toggleOption("transmission", "اوتوماتيك")}
+            />
+            <CheckboxItem
+              label={t("options.manual")}
+              checked={selected.transmission?.includes("عادي")}
+              onChange={() => toggleOption("transmission", "عادي")}
+            />
+          </div>
+        </FilterSection>
 
-      {/* 10. عدد الاسطوانات */}
-      <FilterSection
-        title={t("cylinders")}
-        sectionKey="cylinders"
-        openSection={openSection}
-        onToggle={toggleAccordion}
-        onClear={() => clearSection("cylinders")}
-      >
-        <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
-          <CheckboxItem
-            label={t("options.cyl2")}
-            checked={selected.cylinders?.includes("2 اسطوانة")}
-            onChange={() => toggleOption("cylinders", "2 اسطوانة")}
-          />
-          <CheckboxItem
-            label={t("options.cyl3")}
-            checked={selected.cylinders?.includes("3 اسطوانة")}
-            onChange={() => toggleOption("cylinders", "3 اسطوانة")}
-          />
-          <CheckboxItem
-            label={t("options.cyl4")}
-            checked={selected.cylinders?.includes("4 اسطوانة")}
-            onChange={() => toggleOption("cylinders", "4 اسطوانة")}
-          />
-          <CheckboxItem
-            label={t("options.cyl5")}
-            checked={selected.cylinders?.includes("5 اسطوانة")}
-            onChange={() => toggleOption("cylinders", "5 اسطوانة")}
-          />
-          <CheckboxItem
-            label={t("options.cyl6")}
-            checked={selected.cylinders?.includes("6 اسطوانة")}
-            onChange={() => toggleOption("cylinders", "6 اسطوانة")}
-          />
-          <CheckboxItem
-            label={t("options.cyl8")}
-            checked={selected.cylinders?.includes("8 اسطوانة")}
-            onChange={() => toggleOption("cylinders", "8 اسطوانة")}
-          />
-        </div>
-      </FilterSection>
+        {/* 10. عدد الاسطوانات */}
+        <FilterSection
+          title={t("cylinders")}
+          sectionKey="cylinders"
+          openSection={openSection}
+          onToggle={toggleAccordion}
+          onClear={() => clearSection("cylinders")}
+        >
+          <div className="max-h-48 overflow-y-auto pl-2 pr-1 space-y-2.5 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+            <CheckboxItem
+              label={t("options.cyl2")}
+              checked={selected.cylinders?.includes("2 اسطوانة")}
+              onChange={() => toggleOption("cylinders", "2 اسطوانة")}
+            />
+            <CheckboxItem
+              label={t("options.cyl3")}
+              checked={selected.cylinders?.includes("3 اسطوانة")}
+              onChange={() => toggleOption("cylinders", "3 اسطوانة")}
+            />
+            <CheckboxItem
+              label={t("options.cyl4")}
+              checked={selected.cylinders?.includes("4 اسطوانة")}
+              onChange={() => toggleOption("cylinders", "4 اسطوانة")}
+            />
+            <CheckboxItem
+              label={t("options.cyl5")}
+              checked={selected.cylinders?.includes("5 اسطوانة")}
+              onChange={() => toggleOption("cylinders", "5 اسطوانة")}
+            />
+            <CheckboxItem
+              label={t("options.cyl6")}
+              checked={selected.cylinders?.includes("6 اسطوانة")}
+              onChange={() => toggleOption("cylinders", "6 اسطوانة")}
+            />
+            <CheckboxItem
+              label={t("options.cyl8")}
+              checked={selected.cylinders?.includes("8 اسطوانة")}
+              onChange={() => toggleOption("cylinders", "8 اسطوانة")}
+            />
+          </div>
+        </FilterSection>
+      </div>
 
       {/* Search Submit Button */}
       <div className="p-4 bg-white border-t border-gray-100">
@@ -501,6 +610,25 @@ export default function FilterSidebar() {
       </div>
     </aside>
   );
+
+  if (isDrawer) {
+    return (
+      <>
+        <div
+          ref={backdropRef}
+          onClick={handleSmoothClose}
+          style={{
+            top: `${headerBottom}px`,
+            height: `calc(100vh - ${headerBottom}px)`,
+          }}
+          className="fixed inset-x-0 bg-black/40 z-30"
+        />
+        {sidebarContent}
+      </>
+    );
+  }
+
+  return sidebarContent;
 }
 
 function FilterSection({

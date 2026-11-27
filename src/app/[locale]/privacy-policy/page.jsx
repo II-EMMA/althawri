@@ -27,7 +27,7 @@ export default function PrivacyPolicyPage() {
             className="inline-flex items-center gap-1.5 hover:text-brand-green transition-colors"
           >
             <AiOutlineHome className="md:text-base text-sm shrink-0" />
-            <span>{t("home")}</span>
+            <span className="leading-none">{t("home")}</span>
           </Link>
 
           {isRtl ? (

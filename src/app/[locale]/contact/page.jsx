@@ -26,8 +26,8 @@ export default function ContactUsPage() {
           href="/"
           className="hover:text-brand-green transition-colors inline-flex items-center gap-1"
         >
-          <AiOutlineHome className="md:text-base text-sm" />
-          <span>{t("home")}</span>
+          <AiOutlineHome className="md:text-base text-sm shrink-0" />
+          <span className="leading-none">{t("home")}</span>
         </Link>
         <IoChevronBack
           className={`text-xs text-gray-400 ${isRtl ? "" : "rotate-180"}`}

@@ -592,7 +592,8 @@ export default function CarAuctionDetail({ car }) {
   const imageRef = useRef(null);
 
   useEffect(() => {
-    if (imageRef.current?.complete && imageRef.current?.naturalWidth > 0) {
+    const img = imageRef.current;
+    if (img?.complete && img?.naturalWidth > 0) {
       setIsImageLoading(false);
       return;
     }
@@ -600,7 +601,8 @@ export default function CarAuctionDetail({ car }) {
     setIsImageLoading(true);
 
     const frame = requestAnimationFrame(() => {
-      if (imageRef.current?.complete && imageRef.current?.naturalWidth > 0) {
+      const currentImg = imageRef.current;
+      if (currentImg?.complete && currentImg?.naturalWidth > 0) {
         setIsImageLoading(false);
       }
     });
@@ -737,8 +739,8 @@ export default function CarAuctionDetail({ car }) {
           href="/"
           className="hover:text-brand-green transition-colors inline-flex items-center gap-1"
         >
-          <AiOutlineHome className="md:text-base text-sm" />
-          <span>{t("home")}</span>
+          <AiOutlineHome className="md:text-base text-sm shrink-0" />
+          <span className="leading-none">{t("home")}</span>
         </Link>
         {isRtl ? (
           <FiChevronLeft className="text-gray-400 shrink-0" />
@@ -784,6 +786,14 @@ export default function CarAuctionDetail({ car }) {
               src={car.image}
               alt={carTitle}
               fill
+              onLoadStart={() => {
+                if (
+                  !imageRef.current?.complete ||
+                  imageRef.current?.naturalWidth === 0
+                ) {
+                  setIsImageLoading(true);
+                }
+              }}
               onLoad={() => setIsImageLoading(false)}
               onError={() => setIsImageLoading(false)}
               className={`object-cover transition-all duration-500 group-hover:scale-[1.03] ${
